@@ -1,0 +1,136 @@
+Use Case Diagram:-
+@startuml
+actor Customer
+actor BankStaff
+actor Admin
+
+rectangle "Online Banking System" {
+    Customer -- (Login)
+    Customer -- (Check Balance)
+    Customer -- (Transfer Funds)
+    Customer -- (Deposit Money)
+    Customer -- (Withdraw Money)
+
+    BankStaff -- (Manage Accounts)
+    Admin -- (Generate Reports)
+    Admin -- (Manage Users)
+}
+@enduml
+ 
+Class:-
+@startuml
+class User {
+    - userID: String
+    - name: String
+    - email: String
+    - password: String
+    + login(): void
+    + register(): void
+}
+
+class Account {
+    - accountNumber: String
+    - balance: double
+    + deposit(amount: double): void
+    + withdraw(amount: double): void
+    + transfer(recipient: Account, amount: double): void
+}
+
+class Transaction {
+    - transactionID: String
+    - type: String
+    - amount: double
+    - date: String
+    + saveTransaction(): void
+}
+
+User "1" -- "1" Account
+Account "1" -- "*" Transaction
+@enduml
+
+Sequence Diagram:-
+@startuml
+Customer -> BankingSystem: Login(username, password)
+BankingSystem -> Customer: Validate Credentials
+Customer -> BankingSystem: Transfer Funds(recipient, amount)
+BankingSystem -> Account: Check Balance
+BankingSystem -> Transaction: Process Transaction
+Transaction -> BankingSystem: Confirm Transaction
+BankingSystem -> Customer: Transaction Successful
+@enduml
+
+Collaboration Diagram:-
+@startuml
+object Customer
+object BankingSystem
+object Account
+object Transaction
+
+Customer -> BankingSystem: Login()
+Customer -> BankingSystem: Transfer Funds()
+BankingSystem -> Account: Validate Account
+BankingSystem -> Transaction: Process Transaction
+Transaction -> BankingSystem: Confirm Transaction
+@enduml
+
+State Chart:-
+@startuml
+[*] --> LoggedOut
+LoggedOut --> LoggedIn : User enters credentials
+LoggedIn --> SelectingFeature : Selects Withdraw/Deposit/Transfer
+SelectingFeature --> TransactionProcessing : Enter details
+TransactionProcessing --> Success : Transaction successful
+TransactionProcessing --> Failure : Transaction failed
+Success --> LoggedOut : Logout
+Failure --> SelectingFeature : Retry
+@enduml
+
+Activity Diagram:-
+@startuml
+start
+:User Login;
+if (Valid User?) then (Yes)
+  :Select Service;
+  if (Transfer?) then (Yes)
+    :Enter Details;
+    :Process Transaction;
+    if (Success?) then (Yes)
+      :Show Confirmation;
+    else (No)
+      :Show Failure Message;
+    endif
+  else (No)
+    :Check Balance / Deposit;
+  endif
+else (No)
+  :Show Error;
+endif
+stop
+@enduml
+
+Component Diagram:-
+@startuml
+package "Online Banking System" {
+    [Web Interface] --> [Banking API]
+    [Banking API] --> [Database]
+    [Banking API] --> [External Payment Gateway]
+}
+@enduml
+
+Deployment Diagram:-
+@startuml
+node "Client" {
+    component Browser
+}
+
+node "Web Server" {
+    component "Banking App"
+}
+
+node "Database Server" {
+    database "MySQL Database"
+}
+
+Browser --> "Banking App" : HTTP Request
+"Banking App" --> "MySQL Database" : SQL Query
+@enduml
